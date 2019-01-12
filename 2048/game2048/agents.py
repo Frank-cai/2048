@@ -5,7 +5,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 import torch.nn as nn
 import torch
-
+import time
 
 def make_one_hot(data1, length):
     return (np.arange(length) == data1[:, None]).astype(np.integer)
@@ -84,14 +84,11 @@ class MyAgent(Agent):
         from game2048.myAgent import Net3
 
         self.net = Net()
-        self.net1 = Net3()
         self.net2 = Net3()
-        self.net3 = Net3()
         self.net4 = Net3()
         self.net5 = Net3()
         self.net6 = Net3()
         self.net7 = Net3()
-        self.net8 = Net3()
         self.net_2 = Net2()
         self.net_3 = Net3()
 
@@ -129,13 +126,11 @@ class MyAgent(Agent):
                 t = t + 1
                 board, direction = board.float(), direction.float()
                 board = np.transpose(board, (0, 2, 1, 3))
-                # print(board.size())
                 board, direction = Variable(board), Variable(direction)
                 if torch.cuda.is_available():
                     board = board.cuda()
                     direction = direction.cuda()
                 optimizer.zero_grad()
-                # board = torch.Tensor.reshape(board, BATCH_SIZE, 4, 4, 12)
                 outputs = self.net_3(board)
                 outputs = torch.Tensor.reshape(outputs, BATCH_SIZE, 4)
                 direction = torch.Tensor.reshape(direction, BATCH_SIZE, 4)
@@ -241,8 +236,10 @@ class MyAgent(Agent):
                 max_test1 = i
         max_cnt[max_test1] = max_cnt[max_test1]+1
         '''
-
+        start = time.time()
         direction_test2 = self.net2(one_hot3)
+        end = time.time()
+        print("time", start-end)
         direction_test2 = torch.Tensor.reshape(direction_test2, 1, 4)
         direction_test2 = list(direction_test2)
         max_test2 = 0
@@ -287,7 +284,6 @@ class MyAgent(Agent):
                 max_test6 = i
         max_cnt[max_test6] = max_cnt[max_test6] + 1
 
-
         direction_test7 = self.net7(one_hot3)
         direction_test7 = torch.Tensor.reshape(direction_test7, 1, 4)
         direction_test7 = list(direction_test7)
@@ -311,6 +307,4 @@ class MyAgent(Agent):
             if max_cnt[i] > max_out:
                 max_out = i
 
-        # print(max_cnt)
-        # return int(max)
         return int(max_out)
